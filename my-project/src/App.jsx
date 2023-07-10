@@ -10,13 +10,13 @@ import RootLayout from './layouts/RootLayout'
 
 //pages
 import Home from './pages/Home'
-import Login , { loginAction } from './pages/Login'
+import Login from './pages/Login'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
       <Route index element={<Home />} />
-      <Route path="login" element={<Login />} action={loginAction} />
+      <Route path="login" element={<Login />}/>
     </Route>
   )
 )

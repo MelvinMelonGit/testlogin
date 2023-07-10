@@ -1,23 +1,65 @@
-import { Form, redirect, useActionData } from "react-router-dom";
+import { useState } from 'react'
 
 export default function About() {
-    const data = useActionData()
+
+    const [person, setPerson] = useState({
+        username: '',
+        password: ''
+    });
+    const [errorMessage, setErrorMessage] = useState('')
+
+  function handleChange(e) {
+    setPerson({
+      ...person,
+      [e.target.name]: e.target.value
+    });
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    setErrorMessage('')
+
+    if (!person.username || !person.password) {
+       return setErrorMessage('Put in email or password!')
+    }
+
+    fetch('https://dummyjson.com/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+
+            username: person.username,
+            password: person.password,
+            // expiresInMins: 60, // optional
+        })
+        })
+        .then(res => res.json())
+        .then((data) => {
+            console.log(data)
+            if (data.token) {
+                setErrorMessage("Logged in!")
+            } else {
+                setErrorMessage("Credentials wrong!")
+            }
+      })
+  }
+
   return (
     <div className="hero min-h-screen bg-base-200">
         <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <div className="card-body">
-                <Form method="post" action="/login">
+                <form onSubmit={handleSubmit}>
                 <div className="form-control">
                 <label className="label">
-                    <span className="label-text">Email</span>
+                    <span className="label-text">Username</span>
                 </label>
-                <input type="text" name="email" placeholder="email" className="input input-bordered" />
+                <input name="username" value={person.username} onChange={handleChange} placeholder="username" className="input input-bordered" />
                 </div>
                 <div className="form-control">
                 <label className="label">
                     <span className="label-text">Password</span>
                 </label>
-                <input type="text" name="password" placeholder="password" className="input input-bordered" />
+                <input name="password" value={person.password} onChange={handleChange} placeholder="password" className="input input-bordered" />
                 <label className="label">
                     <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
                 </label>
@@ -25,30 +67,10 @@ export default function About() {
                 <div className="form-control mt-6">
                 <button className="btn btn-primary">Login</button>
                 </div>
-                {data && data.error && <p>{data.error}</p>}
-                </Form>
+                </form>
+                <p>{errorMessage}</p>
             </div>  
         </div>        
     </div>
   )
-}
-
-export const loginAction = async ({ request }) => {
-  const data = await request.formData()
-
-  const submission = {
-    email: data.get('email'),
-    password: data.get('password')
-  }
-
-  console.log(submission)
-
-  // send your post request
-
-  if (!submission.email || !submission.password) {
-    return {error: 'Put in your email and password'}
-  }
-
-  // redirect the user
-  return redirect('/')
 }
